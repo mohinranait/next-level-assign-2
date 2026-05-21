@@ -7,6 +7,8 @@ dotenv.config({
 
 const config = {
   port : process.env.PORT ,
+  db_url : process.env.DB_URL,
+  bcrypt_round: process.env.BCRYPT_SALT_ROUNDS
 }
 
 export default config;
