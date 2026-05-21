@@ -20,6 +20,7 @@ export const createIssueIntoDB = async (
 };
 
 
+/// get all issues with filter and sorting
 const getAllIssuesFromDB = async (sort: string, type: string, status: string) => {
   let query = "SELECT * FROM issues";
   const conditions: string[] = [];
@@ -76,7 +77,39 @@ const getAllIssuesFromDB = async (sort: string, type: string, status: string) =>
 }
 
 
+// get single issue by Id from DB
+const getSingleIssueFromDB = async (id: number) => {
+  const issueResult = await pool.query(
+    "SELECT * FROM issues WHERE id = $1",
+    [id]
+  );
+
+  const issue = issueResult.rows[0];
+
+  if (issueResult.rows.length === 0) {
+    throw new Error("Issue not found");
+  }
+
+  const userResult = await pool.query(
+    "SELECT id,name,role FROM users WHERE id = $1",
+    [issue.reporter_id]
+  );
+
+  return {
+    id: issue.id,
+    title: issue.title,
+    description: issue.description,
+    type: issue.type,
+    status: issue.status,
+    reporter: userResult.rows[0],
+    created_at: issue.created_at,
+    updated_at: issue.updated_at,
+  };
+};
+
+
 export const issueService = {
   createIssueIntoDB,
-  getAllIssuesFromDB
+  getAllIssuesFromDB,
+  getSingleIssueFromDB,
 }
