@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { pool } from "../../db";
 import type { IUser } from "./user.interface";
 import config from "../../config";
+import { generateToken } from "../../utils/generate-token";
 
 // REgister user
 export const signupUser = async (payload: IUser) => {
@@ -35,6 +36,50 @@ export const signupUser = async (payload: IUser) => {
   return result.rows[0];
 };
 
+
+
+// Login user
+const loginUser = async (payload: {
+  email: string;
+  password: string;
+}) => {
+  const {email, password} = payload;
+  const userResult = await pool.query(
+    "SELECT * FROM users WHERE email = $1",
+    [email]
+  );
+
+  const user = userResult.rows[0];
+
+  if (userResult.rows.length === 0) {
+    throw new Error("Invalid credentials");
+  }
+
+  // Match the password
+  const isMatched = await bcrypt.compare(
+    password,
+    user.password
+  );
+
+  if (!isMatched) {
+    throw new Error("Invalid credentials");
+  }
+
+  const token = generateToken({
+    id: user.id,
+    name: user.name,
+    role: user.role,
+  });
+
+  delete user.password;
+
+  return {
+    token,
+    user,
+  };
+};
+
 export const authService = {
   signupUser,
+  loginUser,
 };
