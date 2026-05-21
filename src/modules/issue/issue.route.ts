@@ -7,6 +7,7 @@ const issueRoutes = Router();
 issueRoutes.post('/', auth, issueController.createNewIssue )
 issueRoutes.get("/", issueController.getAllIssues);
 issueRoutes.get("/:id", issueController.getSingleIssue);
+issueRoutes.patch("/:id", auth, issueController.updateIssue);
 
 
 export default issueRoutes;

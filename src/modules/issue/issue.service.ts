@@ -1,11 +1,8 @@
 import { pool } from "../../db";
+import type { ICreateIssuePayload, IIssueUpdateReporter, IUpdateIssuePayload } from "./issue.interface";
 
 export const createIssueIntoDB = async (
-  payload: {
-    title: string;
-    description: string;
-    type: string;
-  },
+  payload: ICreateIssuePayload,
   reporterId: number
 ) => {
   const { title, description, type } = payload;
@@ -108,8 +105,102 @@ const getSingleIssueFromDB = async (id: number) => {
 };
 
 
+// update issue by Id into DB
+const updateIssueIntoDB = async (
+  id: number,
+  payload: IUpdateIssuePayload,
+  user: IIssueUpdateReporter
+) => {
+  // Find issue
+  const issueResult = await pool.query(
+    "SELECT * FROM issues WHERE id = $1",
+    [id]
+  );
+
+  const issue = issueResult.rows[0];
+
+  if (!issue) {
+    throw new Error("Issue not found");
+  }
+
+
+  if (user.role === "contributor") {
+    // Own issue check
+    if (issue.reporter_id !== user.id) {
+      throw new Error("You cannot update this issue");
+    }
+
+    // Open status check
+    if (issue.status !== "open") {
+      throw new Error("You can only update open issues");
+    }
+
+    // Contributor cannot change status
+    if (payload.status) {
+      throw new Error(
+        "Contributors cannot update issue status"
+      );
+    }
+  }
+
+
+
+  const fields: string[] = [];
+  const values: unknown[] = [];
+
+  // title
+  if (payload.title !== undefined) {
+    values.push(payload.title);
+    fields.push(`title = $${values.length}`);
+  }
+
+  // description
+  if (payload.description !== undefined) {
+    values.push(payload.description);
+    fields.push(`description = $${values.length}`);
+  }
+
+  // type
+  if (payload.type !== undefined) {
+    values.push(payload.type);
+    fields.push(`type = $${values.length}`);
+  }
+
+  // status
+  if (payload.status !== undefined) {
+    values.push(payload.status);
+    fields.push(`status = $${values.length}`);
+  }
+
+  // updated_at
+  fields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+  // No fields check
+  if (values.length === 0) {
+    throw new Error("No update fields provided");
+  }
+
+  // Final ID
+  values.push(id);
+
+  // Dynamic query
+  const query = `
+    UPDATE issues
+    SET ${fields.join(", ")}
+    WHERE id = $${values.length}
+    RETURNING *
+  `;
+
+  const result = await pool.query(query, values);
+
+  return result.rows[0];
+};
+
+
+
 export const issueService = {
   createIssueIntoDB,
   getAllIssuesFromDB,
   getSingleIssueFromDB,
+  updateIssueIntoDB
 }

@@ -2,6 +2,7 @@
 import type { Request, Response } from "express";
 import { sendResponse } from "../../utils/sendResponse";
 import { issueService } from "./issue.service"
+import type { IIssueUpdateReporter } from "./issue.interface";
 
 const createNewIssue = async (req: Request, res: Response) => {
   try {
@@ -58,7 +59,7 @@ const getSingleIssue = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
- sendResponse(res, 500, {
+    sendResponse(res, 500, {
       success: false,
       message: "Failed to retrieve issue",
       errors: error,
@@ -68,12 +69,34 @@ const getSingleIssue = async (req: Request, res: Response) => {
 
 
 
- 
+// udpate issue by id
+const updateIssue = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await issueService.updateIssueIntoDB(Number(id), req.body, req.user as IIssueUpdateReporter);
+    sendResponse(res, 200, {
+      success: true,
+      message: "Issue updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    sendResponse(res, 500, {
+      success: false,
+      message: "Failed to update issue",
+      errors: error,
+    });
+  }
+}
+
+
+
+
 
 
 
 export const issueController = {
   createNewIssue,
   getAllIssues,
-  getSingleIssue
+  getSingleIssue,
+  updateIssue
 }
