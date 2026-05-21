@@ -14,9 +14,10 @@ const createNewIssue = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
+    const errMessage = error instanceof Error ? error.message : "Failed to create issue";
     sendResponse(res, 500, {
       success: false,
-      message: "Failed to create issue",
+      message: errMessage,
       errors: error,
     });
   }
@@ -40,9 +41,11 @@ const getAllIssues = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
+    const errMessage = error instanceof Error ? error.message : "Failed to retrieve issues";
+
     sendResponse(res, 500, {
       success: false,
-      message: "Failed to retrieve issues",
+      message: errMessage,
       errors: error,
     });
   }
@@ -59,9 +62,10 @@ const getSingleIssue = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
+    const errMessage = error instanceof Error ? error.message : "Failed to retrieve issue";
     sendResponse(res, 500, {
       success: false,
-      message: "Failed to retrieve issue",
+      message: errMessage,
       errors: error,
     });
   }
@@ -80,9 +84,13 @@ const updateIssue = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
+    console.log(error);
+
+    const errMessage = error instanceof Error ? error.message : "Failed to update issue";
+
     sendResponse(res, 500, {
       success: false,
-      message: "Failed to update issue",
+      message: errMessage,
       errors: error,
     });
   }
