@@ -22,6 +22,26 @@ const createNewIssue = async (req:Request, res: Response) => {
 }
 
 
+const getAllIssues =  async (req: Request, res: Response) => {
+    const sort = (req.query.sort as string) || "newest";
+    const type = req.query.type as string;
+    const status = req.query.status as string;
+
+    const result = await issueService.getAllIssuesFromDB(
+      sort,
+      type,
+      status
+    );
+
+    sendResponse(res, 200, {
+      success: true,
+      message: "Issues retrieved successfully",
+      data: result,
+    });
+  }
+
+
 export const issueController = {
-  createNewIssue
+  createNewIssue,
+  getAllIssues
 }
