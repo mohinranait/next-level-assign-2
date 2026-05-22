@@ -5,7 +5,21 @@ export const createIssueIntoDB = async (
   payload: ICreateIssuePayload,
   reporterId: number
 ) => {
-  const { title, description, type } = payload;
+  const { title, description, type } = payload || {};
+
+  if(!title || !description || !type) {
+    throw new Error("All fields are required");
+  }
+
+
+  if(title.length > 150) {
+    throw new Error("Title cannot exceed 150 characters");
+  }
+
+  if(description.length < 20) {
+    throw new Error("Description must be at least 20 characters long");
+  }
+
   const result = await pool.query(
     `INSERT INTO issues(title,description,type,reporter_id)
      VALUES($1,$2,$3,$4)
@@ -197,10 +211,25 @@ const updateIssueIntoDB = async (
 };
 
 
+// Delete issue by Id from db
+export const deleteIssueFromDB = async (id: number) => {
+  const issueResult = await pool.query(
+    "SELECT * FROM issues WHERE id = $1",
+    [id]
+  );
+
+  if (issueResult.rows.length === 0) {
+    throw new Error("Issue not found");
+  }
+
+  await pool.query("DELETE FROM issues WHERE id = $1", [id]);
+};
+
 
 export const issueService = {
   createIssueIntoDB,
   getAllIssuesFromDB,
   getSingleIssueFromDB,
-  updateIssueIntoDB
+  updateIssueIntoDB,
+  deleteIssueFromDB,
 }

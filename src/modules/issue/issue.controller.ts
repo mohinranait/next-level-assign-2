@@ -7,6 +7,7 @@ import type { IIssueUpdateReporter } from "./issue.interface";
 const createNewIssue = async (req: Request, res: Response) => {
   try {
     const reportedId = req?.user?.id;
+    
     const result = await issueService.createIssueIntoDB(req.body, reportedId);
     sendResponse(res, 201, {
       success: true,
@@ -14,11 +15,13 @@ const createNewIssue = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    const errMessage = error instanceof Error ? error.message : "Failed to create issue";
+    const message = "Failed to create issue"
+    const errMessage = error instanceof Error ? error.message : message;
+
     sendResponse(res, 500, {
       success: false,
-      message: errMessage,
-      errors: error,
+      message: message,
+      errors: errMessage || error,
     });
   }
 }
@@ -41,12 +44,14 @@ const getAllIssues = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    const errMessage = error instanceof Error ? error.message : "Failed to retrieve issues";
+
+    const message = "Failed to retrieve issues"
+    const errMessage = error instanceof Error ? error.message : message;
 
     sendResponse(res, 500, {
       success: false,
-      message: errMessage,
-      errors: error,
+      message: message,
+      errors: errMessage || error,
     });
   }
 }
@@ -62,11 +67,13 @@ const getSingleIssue = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    const errMessage = error instanceof Error ? error.message : "Failed to retrieve issue";
+    const message = "Failed to retrieve issue"
+    const errMessage = error instanceof Error ? error.message : message;
+
     sendResponse(res, 500, {
       success: false,
-      message: errMessage,
-      errors: error,
+      message: message,
+      errors: errMessage || error,
     });
   }
 }
@@ -84,21 +91,40 @@ const updateIssue = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.log(error);
-
-    const errMessage = error instanceof Error ? error.message : "Failed to update issue";
+    const message = "Failed to update issue"
+    const errMessage = error instanceof Error ? error.message : message;
 
     sendResponse(res, 500, {
       success: false,
-      message: errMessage,
-      errors: error,
+      message: message,
+      errors: errMessage || error,
     });
   }
 }
 
 
 
+// delee isue by id
+const deleteIssue = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await issueService.deleteIssueFromDB(Number(id))
+    sendResponse(res, 200, {
+      success: true,
+      message: "Issue Delete successfully",
+    });
+  }
+  catch (error) {
+    const message = "Failed to delete issue"
+    const errMessage = error instanceof Error ? error.message : message;
 
+    sendResponse(res, 500, {
+      success: false,
+      message: message,
+      errors: errMessage || error,
+    });
+  }
+}
 
 
 
@@ -106,5 +132,6 @@ export const issueController = {
   createNewIssue,
   getAllIssues,
   getSingleIssue,
-  updateIssue
+  updateIssue,
+  deleteIssue
 }

@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { authService } from "./auth.service";
 import { sendResponse } from "../../utils/sendResponse";
 
+// Register new users
 const register = async (req: Request, res: Response) => {
   try {
     const result = await authService.signupUser(req.body);
@@ -12,13 +13,16 @@ const register = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.log(error);
+
+    const message = "Failed to register user"
+    const errMessage = error instanceof Error ? error.message : message;
 
     sendResponse(res, 400, {
       success: false,
-      message: "Failed to register user",
-      errors: error,
+      message: message,
+      errors: errMessage || error,
     });
+
   }
 
 };
@@ -35,11 +39,16 @@ const login = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
+
+    const message = "Failed to login user"
+    const errMessage = error instanceof Error ? error.message : message;
+
     sendResponse(res, 400, {
       success: false,
-      message: "Failed to login user",
-      errors: error,
+      message: message,
+      errors: errMessage || error,
     });
+
   }
 };
 

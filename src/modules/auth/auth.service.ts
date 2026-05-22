@@ -7,6 +7,11 @@ import { generateToken } from "../../utils/generate-token";
 // REgister user
 export const signupUser = async (payload: IUser) => {
   const { name, email, password, role } = payload;
+
+  if(!name || !email || !password) {
+    throw new Error("All fields are required");
+  }
+
   const existingUser = await pool.query(
     "SELECT * FROM users WHERE email = $1",
     [email]
@@ -43,7 +48,11 @@ const loginUser = async (payload: {
   email: string;
   password: string;
 }) => {
-  const {email, password} = payload;
+  const {email, password} = payload || {};
+  if( !email || !password) {
+    throw new Error("All fields are required");
+  }
+
   const userResult = await pool.query(
     "SELECT * FROM users WHERE email = $1",
     [email]

@@ -17,7 +17,6 @@ export const auth = (
       sendResponse(res, 401, {
         success: false,
         message: "Unauthorized access",
-        errors: {}
       })
       return;
     }
@@ -26,6 +25,7 @@ export const auth = (
       token,
       config.jwt_secret as string
     );
+
 
     req.user = decoded as JwtPayload;
 
