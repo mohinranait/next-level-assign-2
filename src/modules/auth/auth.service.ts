@@ -61,7 +61,7 @@ const loginUser = async (payload: {
   const user = userResult.rows[0];
 
   if (userResult.rows.length === 0) {
-    throw new Error("Invalid credentials");
+    throw new Error("User not found in your records");
   }
 
   // Match the password
